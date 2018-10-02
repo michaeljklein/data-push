@@ -60,3 +60,7 @@ class HasEnd f where
   end :: f e a -> e
 ```
 
+# Docs
+
+Haddock generated documentation may be found [here](https://michaeljklein.github.io/data-push/)
+
