@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Scratch</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Scratch.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">data-push-0.1.0.0</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>Safe</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Scratch</p></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><a href="#v:s1">s1</a> :: ()</li><li class="src short"><a href="#v:endFunctorDef">endFunctorDef</a> :: ()</li><li class="src short"><a href="#v:s2">s2</a> :: ()</li></ul></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src"><a id="v:s1" class="def">s1</a> :: () <a href="src/Scratch.html#s1" class="link">Source</a> <a href="#v:s1" class="selflink">#</a></p><div class="doc"><pre> push :: f (Either a b) -&gt; f (Either (f a) (f b))
+
+ we need to be able to:
+   f a -&gt; f (StronglyConnectedComponent f a)
+
+ which is two steps:
+   isolate:
+     we need to isolate the SCC
+   constract:
+     we need to replace the SCC with a single node containing the SCC
+
+ what the end-functor construction does is replace the contraction with an equivalent operation: redefinition of data boundaries
+   with an added bonus: the boundaries are &quot;free&quot;, and always result in an isomorphic type (proof?)
+</pre></div></div><div class="top"><p class="src"><a id="v:endFunctorDef" class="def">endFunctorDef</a> :: () <a href="src/Scratch.html#endFunctorDef" class="link">Source</a> <a href="#v:endFunctorDef" class="selflink">#</a></p><div class="doc"><pre> An end-functor is a functor with the following properties:
+   It has an end value, whose type is solely dependent upon f:
+     type EndOf f :: *
+     endOf :: f a -&gt; EndOf f
+     end :: EndOf f -&gt; f a
+     endOf . end == id
+   Its end value may be replaced with a new one, as a result of a fold:
+     Bifunctor (End f)
+     type EndOf (End f e) = e
+     foldEnd :: Fold a (EndOf f -&gt; e) -&gt; f a -&gt; End f e a
+     foldEndM :: Monad m =&gt; FoldM a (EndOf f -&gt; e) -&gt; f a -&gt; m (End f e a)
+   Its middle values may be split by an end, resulting in a duplicate-like operation:
+     foldEnds :: (a -&gt; Bool) -&gt; f a -&gt; FixEnd f a
+     foldEndsM :: Monad m =&gt; (a -&gt; m Bool) -&gt; f a -&gt; m (FixEnd f a)
+
+     FoldM (Either (Left a)) b () -&gt; FoldM (Either (Right b)) a () -&gt; f (Either a b) -&gt; EitherFlip (FixEnd2 f) a b
+</pre></div></div><div class="top"><p class="src"><a id="v:s2" class="def">s2</a> :: () <a href="src/Scratch.html#s2" class="link">Source</a> <a href="#v:s2" class="selflink">#</a></p><div class="doc"><pre> what about:
+   newtype Stream a = Stream { runStream :: (a, Stream a) }
+ we can push it through Either:
+   Stream (Either a b) -&gt; NonEmptyEnd (NonEmptyEnd .. b) a
+
+ newtype EitherFlip f a b = EitherFlip { getEitherFlip :: Either (f b a) (f a b) } deriving (Eq, Ord, Show, Functor)
+
+ newtype FixEnd f a = FixEnd { runFixEnd :: End f (FixEnd f a) a }
+
+ newtype FixEnd2 f a b = FixEnd2 { runFixEnd2 :: End f (FixEnd2 f b a) b }
+
+ newtype SomeIso a = SomeIso { runSomeIso :: (a -&gt; b, b, b -&gt; a) }
+</pre></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.18.1</p></div></body></html>

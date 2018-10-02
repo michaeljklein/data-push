@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span>
+</span><a name="line-2"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Scratch</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-3"></a><span>
+</span><a name="line-4"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-5"></a><span class="hs-comment">--</span><span>
+</span><a name="line-6"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-7"></a><span class="hs-comment">--  push :: f (Either a b) -&gt; f (Either (f a) (f b))</span><span>
+</span><a name="line-8"></a><span class="hs-comment">--</span><span>
+</span><a name="line-9"></a><span class="hs-comment">--  we need to be able to:</span><span>
+</span><a name="line-10"></a><span class="hs-comment">--    f a -&gt; f (StronglyConnectedComponent f a)</span><span>
+</span><a name="line-11"></a><span class="hs-comment">--</span><span>
+</span><a name="line-12"></a><span class="hs-comment">--  which is two steps:</span><span>
+</span><a name="line-13"></a><span class="hs-comment">--    isolate:</span><span>
+</span><a name="line-14"></a><span class="hs-comment">--      we need to isolate the SCC</span><span>
+</span><a name="line-15"></a><span class="hs-comment">--    constract:</span><span>
+</span><a name="line-16"></a><span class="hs-comment">--      we need to replace the SCC with a single node containing the SCC</span><span>
+</span><a name="line-17"></a><span class="hs-comment">--</span><span>
+</span><a name="line-18"></a><span class="hs-comment">--  what the end-functor construction does is replace the contraction with an equivalent operation: redefinition of data boundaries</span><span>
+</span><a name="line-19"></a><span class="hs-comment">--    with an added bonus: the boundaries are &quot;free&quot;, and always result in an isomorphic type (proof?)</span><span>
+</span><a name="line-20"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-21"></a><span class="hs-comment">--</span><span>
+</span><a name="line-22"></a><span class="hs-identifier">s1</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-23"></a><a name="s1"><a href="Scratch.html#s1"><span class="hs-identifier">s1</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-24"></a><span>
+</span><a name="line-25"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-26"></a><span class="hs-comment">--</span><span>
+</span><a name="line-27"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-28"></a><span class="hs-comment">--  An end-functor is a functor with the following properties:</span><span>
+</span><a name="line-29"></a><span class="hs-comment">--    It has an end value, whose type is solely dependent upon f:</span><span>
+</span><a name="line-30"></a><span class="hs-comment">--      type EndOf f :: *</span><span>
+</span><a name="line-31"></a><span class="hs-comment">--      endOf :: f a -&gt; EndOf f</span><span>
+</span><a name="line-32"></a><span class="hs-comment">--      end :: EndOf f -&gt; f a</span><span>
+</span><a name="line-33"></a><span class="hs-comment">--      endOf . end == id</span><span>
+</span><a name="line-34"></a><span class="hs-comment">--    Its end value may be replaced with a new one, as a result of a fold:</span><span>
+</span><a name="line-35"></a><span class="hs-comment">--      Bifunctor (End f)</span><span>
+</span><a name="line-36"></a><span class="hs-comment">--      type EndOf (End f e) = e</span><span>
+</span><a name="line-37"></a><span class="hs-comment">--      foldEnd :: Fold a (EndOf f -&gt; e) -&gt; f a -&gt; End f e a</span><span>
+</span><a name="line-38"></a><span class="hs-comment">--      foldEndM :: Monad m =&gt; FoldM a (EndOf f -&gt; e) -&gt; f a -&gt; m (End f e a)</span><span>
+</span><a name="line-39"></a><span class="hs-comment">--    Its middle values may be split by an end, resulting in a duplicate-like operation:</span><span>
+</span><a name="line-40"></a><span class="hs-comment">--      foldEnds :: (a -&gt; Bool) -&gt; f a -&gt; FixEnd f a</span><span>
+</span><a name="line-41"></a><span class="hs-comment">--      foldEndsM :: Monad m =&gt; (a -&gt; m Bool) -&gt; f a -&gt; m (FixEnd f a)</span><span>
+</span><a name="line-42"></a><span class="hs-comment">--</span><span>
+</span><a name="line-43"></a><span class="hs-comment">--      FoldM (Either (Left a)) b () -&gt; FoldM (Either (Right b)) a () -&gt; f (Either a b) -&gt; EitherFlip (FixEnd2 f) a b</span><span>
+</span><a name="line-44"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-45"></a><span class="hs-comment">--</span><span>
+</span><a name="line-46"></a><span class="hs-identifier">endFunctorDef</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-47"></a><a name="endFunctorDef"><a href="Scratch.html#endFunctorDef"><span class="hs-identifier">endFunctorDef</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-48"></a><span>
+</span><a name="line-49"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-50"></a><span class="hs-comment">--</span><span>
+</span><a name="line-51"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-52"></a><span class="hs-comment">--  what about:</span><span>
+</span><a name="line-53"></a><span class="hs-comment">--    newtype Stream a = Stream { runStream :: (a, Stream a) }</span><span>
+</span><a name="line-54"></a><span class="hs-comment">--  we can push it through Either:</span><span>
+</span><a name="line-55"></a><span class="hs-comment">--    Stream (Either a b) -&gt; NonEmptyEnd (NonEmptyEnd .. b) a</span><span>
+</span><a name="line-56"></a><span class="hs-comment">--</span><span>
+</span><a name="line-57"></a><span class="hs-comment">--  newtype EitherFlip f a b = EitherFlip { getEitherFlip :: Either (f b a) (f a b) } deriving (Eq, Ord, Show, Functor)</span><span>
+</span><a name="line-58"></a><span class="hs-comment">--</span><span>
+</span><a name="line-59"></a><span class="hs-comment">--  newtype FixEnd f a = FixEnd { runFixEnd :: End f (FixEnd f a) a }</span><span>
+</span><a name="line-60"></a><span class="hs-comment">--</span><span>
+</span><a name="line-61"></a><span class="hs-comment">--  newtype FixEnd2 f a b = FixEnd2 { runFixEnd2 :: End f (FixEnd2 f b a) b }</span><span>
+</span><a name="line-62"></a><span class="hs-comment">--</span><span>
+</span><a name="line-63"></a><span class="hs-comment">--  newtype SomeIso a = SomeIso { runSomeIso :: (a -&gt; b, b, b -&gt; a) }</span><span>
+</span><a name="line-64"></a><span class="hs-comment">-- @</span><span>
+</span><a name="line-65"></a><span class="hs-comment">--</span><span>
+</span><a name="line-66"></a><span class="hs-identifier">s2</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-67"></a><a name="s2"><a href="Scratch.html#s2"><span class="hs-identifier">s2</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a name="line-68"></a><span>
+</span><a name="line-69"></a><span class="hs-comment">-- -- Array</span><span>
+</span><a name="line-70"></a><span>
+</span><a name="line-71"></a><span class="hs-comment">-- -- | We turn a 1xn array into a 2xn array, with the two options as the pairs.. hmm, maybe this should be:</span><span>
+</span><a name="line-72"></a><span class="hs-comment">-- -- EndArray i e a = EndArray (Strict e (Array i) a)</span><span>
+</span><a name="line-73"></a><span class="hs-comment">-- newtype EndArray i e a = EndArray { getEndArray :: Strict e (Array i) a } deriving (Eq, Ord, Show, Functor, Foldable, Traversable)</span><span>
+</span><a name="line-74"></a><span>
+</span><a name="line-75"></a><span>
+</span><a name="line-76"></a><span class="hs-comment">-- -- Graph</span><span>
+</span><a name="line-77"></a><span>
+</span><a name="line-78"></a><span>
+</span><a name="line-79"></a><span class="hs-comment">-- stronglyConnCompR</span><span>
+</span><a name="line-80"></a><span class="hs-comment">--         :: Ord key</span><span>
+</span><a name="line-81"></a><span class="hs-comment">--         =&gt; [(node, key, [key])]</span><span>
+</span><a name="line-82"></a><span class="hs-comment">--                 -- ^ The graph: a list of nodes uniquely identified by keys,</span><span>
+</span><a name="line-83"></a><span class="hs-comment">--                 -- with a list of keys of nodes this node has edges to.</span><span>
+</span><a name="line-84"></a><span class="hs-comment">--                 -- The out-list may contain keys that don't correspond to</span><span>
+</span><a name="line-85"></a><span class="hs-comment">--                 -- nodes of the graph; such edges are ignored.</span><span>
+</span><a name="line-86"></a><span class="hs-comment">--         -&gt; [SCC (node, key, [key])]</span><span>
+</span><a name="line-87"></a><span>
+</span><a name="line-88"></a><span>
+</span><a name="line-89"></a><span class="hs-comment">-- data SCC vertex</span><span>
+</span><a name="line-90"></a><span>
+</span><a name="line-91"></a><span class="hs-comment">-- Strongly connected component.</span><span>
+</span><a name="line-92"></a><span>
+</span><a name="line-93"></a><span class="hs-comment">-- Constructors</span><span>
+</span><a name="line-94"></a><span>
+</span><a name="line-95"></a><span class="hs-comment">-- AcyclicSCC vertex</span><span>
+</span><a name="line-96"></a><span class="hs-comment">-- A single vertex that is not in any cycle.</span><span>
+</span><a name="line-97"></a><span>
+</span><a name="line-98"></a><span class="hs-comment">-- CyclicSCC [vertex]</span><span>
+</span><a name="line-99"></a><span>
+</span><a name="line-100"></a><span>
+</span><a name="line-101"></a><span class="hs-comment">-- flattenSCC :: SCC vertex -&gt; [vertex]</span><span>
+</span><a name="line-102"></a><span>
+</span><a name="line-103"></a><span>
+</span><a name="line-104"></a><span class="hs-comment">-- contractSCC :: Ord key =&gt; SCC node -&gt; [(node, key, [key])] -&gt; [(node, key, [key])</span><span>
+</span><a name="line-105"></a><span class="hs-comment">-- contractSCC (AcyclicSCC _) ys = ys</span><span>
+</span><a name="line-106"></a><span class="hs-comment">-- contractSCC (CyclicSCC (x:xs)) ys = case find node</span><span>
+</span><a name="line-107"></a><span class="hs-comment">-- find all nodes</span><span>
+</span><a name="line-108"></a><span class="hs-comment">-- get all keys</span><span>
+</span><a name="line-109"></a><span class="hs-comment">-- replace all keys except that of the first node with that of the first node (no duplicates)</span><span>
+</span><a name="line-110"></a><span>
+</span><a name="line-111"></a><span>
+</span><a name="line-112"></a><span class="hs-comment">-- to push: filter the graph into Left and Right,</span><span>
+</span><a name="line-113"></a><span class="hs-comment">-- find the stronglyConnCompR of each,</span><span>
+</span><a name="line-114"></a><span class="hs-comment">-- then contractSCC for all of them, except, instead of deleting the subgraph, we want to replace the contents of the node at the only remaining vertex with the previous subgraph.</span><span>
+</span><a name="line-115"></a><span class="hs-comment">--   this will give us:</span><span>
+</span><a name="line-116"></a><span class="hs-comment">--     Graph (Either a b) -&gt; Graph (Graph (Either a b)), where the contents of each subgraph is guaranteed to be homogenously Left or homogenously Right</span><span>
+</span><a name="line-117"></a><span>
+</span><a name="line-118"></a><span class="hs-comment">-- forall f (g a)'s in f (f (g a)),</span><span>
+</span><a name="line-119"></a><span class="hs-comment">--   all $ (all =&lt;&lt; (==) . head) . fmap kindOf</span><span>
+</span><a name="line-120"></a><span class="hs-comment">--     :: (Foldable f, Data g) =&gt; f (f (g a)) -&gt; Bool</span><span>
+</span><a name="line-121"></a><span class="hs-comment">--   where kindOf = data constructor class of, provided by Data</span><span>
+</span><a name="line-122"></a><span class="hs-comment">--         e.g. Left and Right</span><span>
+</span><a name="line-123"></a><span>
+</span><a name="line-124"></a><span class="hs-comment">-- -- Etc.</span><span>
+</span><a name="line-125"></a><span>
+</span><a name="line-126"></a><span>
+</span><a name="line-127"></a><span>
+</span><a name="line-128"></a><span class="hs-comment">-- push :: Set (Maybe a) -&gt; Set (Maybe (Set a))</span><span>
+</span><a name="line-129"></a><span class="hs-comment">-- push x | Nothing `S.elem` x = [Nothing, Just $ (\(~(Just y)) -&gt; y) &lt;$&gt; S.delete Nothing x]</span><span>
+</span><a name="line-130"></a><span class="hs-comment">--        | otherwise = [Just $ (\(~(Just y)) -&gt; y) &lt;$&gt; x]</span><span>
+</span><a name="line-131"></a><span>
+</span><a name="line-132"></a><span>
+</span><a name="line-133"></a><span class="hs-comment">-- newtype PushedList a b = PushedList { getPushedList :: EndList (PushedList b a) b }</span><span>
+</span><a name="line-134"></a><span>
+</span><a name="line-135"></a><span class="hs-comment">-- newtype Either2 f a b = Either2 { getEither2 :: Either (f b a) (f a b) }</span><span>
+</span><a name="line-136"></a><span>
+</span><a name="line-137"></a><span class="hs-comment">-- push :: [Maybe a] -&gt; Either2 PushedList (forall b. Maybe b) (Maybe [a])</span><span>
+</span><a name="line-138"></a><span>
+</span><a name="line-139"></a><span>
+</span><a name="line-140"></a><span class="hs-comment">-- newtype PushedBtree a b = PushedBtree { getPushedBtree :: EndBtree (PushedBtree b a) b }</span><span>
+</span><a name="line-141"></a><span>
+</span><a name="line-142"></a><span class="hs-comment">-- push :: Btree (Maybe a) -&gt; Either2 PushedBtree (forall t. Maybe t) (Maybe (Btree a))</span><span>
+</span><a name="line-143"></a><span>
+</span><a name="line-144"></a><span class="hs-comment">-- class (Foldable f, Bifoldable (End f)) HasEnd f where</span><span>
+</span><a name="line-145"></a><span class="hs-comment">--   type End f e a :: *</span><span>
+</span><a name="line-146"></a><span class="hs-comment">--   end :: End f e a -&gt; e</span><span>
+</span><a name="line-147"></a><span class="hs-comment">--   end = bifoldr1 const (flip const)</span><span>
+</span><a name="line-148"></a><span>
+</span><a name="line-149"></a><span class="hs-comment">--   foldEnd :: Fold a e -&gt; Fold (f a) (End f e a)</span><span>
+</span><a name="line-150"></a><span class="hs-comment">--   foldEndM :: Monad m =&gt; FoldM m a e -&gt; FoldM m (f a) (End f e a)</span><span>
+</span><a name="line-151"></a><span>
+</span><a name="line-152"></a><span>
+</span><a name="line-153"></a><span class="hs-comment">{-
+
+foldEndM :: FoldM m a e -&gt; FoldM m (f a) (End f e a)
+
+foldEither :: FoldM (Either b) a b -&gt; Fold b c -&gt; Fold a c
+foldEither f g =
+  fold with (f):
+    Left -&gt; cons onto g and restart
+    Right -&gt; cons onto g and end
+
+
+
+fmap EndRec :: Monad m =&gt; FoldM m (f a) (End f (EndRec f c b) c) -&gt; FoldM m (f a) (EndRec f b c)
+
+-}</span><span>
+</span><a name="line-168"></a><span>
+</span><a name="line-169"></a><span>
+</span><a name="line-170"></a><span class="hs-comment">-- newtype EndRec f a b = EndRec { runEndRec :: End f (EndRec f b a) b }</span><span>
+</span><a name="line-171"></a><span>
+</span><a name="line-172"></a><span class="hs-comment">-- class (Functor f, Functor (NonEmptyT f), Copointed (NonEmptyT f)) =&gt; HasNonEmpty f where</span><span>
+</span><a name="line-173"></a><span class="hs-comment">--   type NonEmptyT f :: * -&gt; *</span><span>
+</span><a name="line-174"></a><span class="hs-comment">--   toNonEmptyT :: f a -&gt; Maybe (NonEmptyT f a)</span><span>
+</span><a name="line-175"></a><span class="hs-comment">--   fromNonEmptyT :: NonEmptyT f a -&gt; f a</span><span>
+</span><a name="line-176"></a><span class="hs-comment">--   extractNonEmptyT :: NonEmptyT f a -&gt; a</span><span>
+</span><a name="line-177"></a><span>
+</span><a name="line-178"></a><span class="hs-comment">-- newtype EitherFlip f a b = EitherFlip { getEitherFlip :: Either (f b a) (f a b) } deriving (Eq, Ord, Show, Functor)</span><span>
+</span><a name="line-179"></a><span>
+</span><a name="line-180"></a><span class="hs-comment">-- newtype PushedSum f a b = PushedSum { getPushedSum :: EitherFlip (EndRec f) (NonEmptyT f a) (NonEmptyT f b) } deriving (Eq, Ord, Show, Functor)</span><span>
+</span><a name="line-181"></a><span>
+</span><a name="line-182"></a><span>
+</span><a name="line-183"></a><span class="hs-comment">-- class (HasNonEmpty f, HasEnd f) =&gt; PushSum f where</span><span>
+</span><a name="line-184"></a><span class="hs-comment">--   pushMaybe :: f (Maybe a) -&gt; PushedSum f () a</span><span>
+</span><a name="line-185"></a><span>
+</span><a name="line-186"></a><span class="hs-comment">--   pushEither :: f (Either a b) -&gt; PushedSum f a b</span><span>
+</span><a name="line-187"></a><span>
+</span><a name="line-188"></a><span>
+</span><a name="line-189"></a></pre></body></html>
