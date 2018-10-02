@@ -1,0 +1,39 @@
+name:                data-push
+version:             0.1.0.0
+github:              "michaeljklein/data-push"
+license:             BSD3
+author:              "Michael J. Klein"
+maintainer:          "lambdamichael@gmail.com"
+copyright:           "2018 Michael J. Klein"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description:         Please see the README on GitHub at <https://github.com/michaeljklein/data-push#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- comonad
+- containers
+- contravariant
+- distributive
+- free
+- mtl
+- transformers
+- unordered-containers
+- bifunctors
+
+library:
+  source-dirs: src
+
+tests:
+  data-push-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - data-push

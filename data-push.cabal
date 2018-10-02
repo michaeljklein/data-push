@@ -1,0 +1,78 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 08f39d0fe7a6b6d0bbaa05de1b1adadba3ad345f395891ea726dc8ee7c601ea3
+
+name:           data-push
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/michaeljklein/data-push#readme>
+homepage:       https://github.com/michaeljklein/data-push#readme
+bug-reports:    https://github.com/michaeljklein/data-push/issues
+author:         Michael J. Klein
+maintainer:     lambdamichael@gmail.com
+copyright:      2018 Michael J. Klein
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/michaeljklein/data-push
+
+library
+  exposed-modules:
+      Control.Comonad.Cofree2
+      Control.Push
+      Control.Push2
+      Data.Btree
+      Data.Btree.End
+      Data.Btree1
+      Data.Btree1.End
+      Data.End
+      Data.List.End
+      Data.List.NonEmpty.End
+      Data.Tree.End
+      Scratch
+  other-modules:
+      Paths_data_push
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , bifunctors
+    , comonad
+    , containers
+    , contravariant
+    , distributive
+    , free
+    , mtl
+    , transformers
+    , unordered-containers
+  default-language: Haskell2010
+
+test-suite data-push-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_data_push
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bifunctors
+    , comonad
+    , containers
+    , contravariant
+    , data-push
+    , distributive
+    , free
+    , mtl
+    , transformers
+    , unordered-containers
+  default-language: Haskell2010
